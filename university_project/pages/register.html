@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Register</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="loginPage">
+
+  <div class="loginSection">
+
+    <!-- LEFT SIDE -->
+    <div class="loginInfo">
+      <h1>Join the Portal 🚀</h1>
+      <p>
+        Create your account and get personalized internship
+        recommendations based on your skills and interests.
+      </p>
+    </div>
+
+    <!-- RIGHT SIDE CARD -->
+    <div class="card loginCard">
+
+      <h2>Create Account</h2>
+
+      <!-- Inputs -->
+      <div class="inputGroup">
+        <span>👤</span>
+        <input type="text" id="name" placeholder="Full Name">
+      </div>
+
+      <div class="inputGroup">
+        <span>📧</span>
+        <input type="email" id="email" placeholder="Email">
+      </div>
+
+      <div class="inputGroup">
+        <span>🔒</span>
+        <input type="password" id="password" placeholder="Password">
+      </div>
+
+      <div class="inputGroup">
+        <span>🔑</span>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+      </div>
+
+      <!-- Button -->
+      <button onclick="register()">Register</button>
+
+      <!-- Link -->
+      <p style="text-align:center;">
+        Already have account? <a href="login.html">Login</a>
+      </p>
+
+    </div>
+
+  </div>
+
+  <script>
+    async function register() {
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      // ✅ VALIDATION
+      if (!name || !email || !password || !confirmPassword) {
+        alert("All fields required");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match");
+        return;
+      }
+
+      try {
+        const res = await fetch("/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.message === "User already exists") {
+          alert("Email already registered");
+        } else {
+          alert("Registration successful");
+          window.location.href = "login.html";
+        }
+
+      } catch (err) {
+        alert("Error registering");
+      }
+    }
+  </script>
+
+</body>
+
+</html>

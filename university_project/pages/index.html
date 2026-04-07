@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PM Internship Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <img src="images/gov-logo.png" class="navLogo">
+      <div class="navText">
+        <span>PM Internship Portal</span>
+        <small>Government of India</small>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <button class="secondaryBtn" onclick="goLogin()">Login</button>
+      <button class="primaryBtn" onclick="goRegister()">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <h1>Find Internships That Actually Match You</h1>
+      <p>
+        Stop applying blindly. Get AI-powered internship recommendations
+        based on your real skills and interests.
+      </p>
+
+      <div class="hero-buttons">
+        <button class="primaryBtn" onclick="goLogin()">Start Now</button>
+        <button class="secondaryBtn">Explore</button>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <img src="images/modi.avif" alt="Hero">
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats">
+    <div class="stat">
+      <h2>500+</h2>
+      <p>Internships</p>
+    </div>
+    <div class="stat">
+      <h2>200+</h2>
+      <p>Companies</p>
+    </div>
+    <div class="stat">
+      <h2>10K+</h2>
+      <p>Students Helped</p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+
+    <div class="featureCard">
+      <h3>Smart Matching</h3>
+      <p>AI matches internships based on your skills and profile.</p>
+    </div>
+
+    <div class="featureCard">
+      <h3>Resume Upload</h3>
+      <p>Upload resume and get instant recommendations.</p>
+    </div>
+
+    <div class="featureCard">
+      <h3>Verified Listings</h3>
+      <p>Only trusted companies and real opportunities.</p>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>© 2026 Internship Portal | Built for Students</p>
+  </footer>
+
+  <script>
+    function goLogin() {
+      window.location.href = "login.html";
+    }
+    function goRegister() {
+      window.location.href = "register.html";
+    }
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboardPage">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>🚀 Dashboard</h2>
+
+    <ul>
+      <li class="active">Home</li>
+      <li>Apply Internship</li>
+      <li>Profile</li>
+    </ul>
+
+    <div class="sidebarSection">
+      <h4>🔥 Top Matches</h4>
+      <div id="topMatches"></div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="mainContent">
+
+    <!-- HEADER -->
+    <div class="topHeader">
+      <h2 id="welcomeText">Hello 👋</h2>
+
+      <div class="headerRight">
+        <div class="appliedBox">
+          Applied <span id="appliedCount">0</span>
+        </div>
+
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="profileBox">
+      <p><b>Domain:</b> <span id="userDomain"></span></p>
+      <p><b>Skills:</b> <span id="userSkills"></span></p>
+    </div>
+
+    <!-- RESULTS -->
+    <h2>Recommended Internships 🎯</h2>
+
+    <div id="cardGrid" class="cardGrid"></div>
+
+  </div>
+
+  <script>
+
+    // logout
+    function logout() {
+      window.location.href = "index.html";
+    }
+
+    // load profile
+    document.getElementById("userDomain").innerText = localStorage.getItem("domain") || "Not set";
+    document.getElementById("userSkills").innerText = localStorage.getItem("skills") || "Not set";
+
+    // load results
+    const results = JSON.parse(localStorage.getItem("results")) || [];
+
+    const grid = document.getElementById("cardGrid");
+    const topMatches = document.getElementById("topMatches");
+
+    if (results.length === 0) {
+      grid.innerHTML = "<p>No internships found 😢</p>";
+    } else {
+
+      let html = "";
+      let topHtml = "";
+
+      results.forEach((r, index) => {
+
+        // main cards
+        html += `
+      <div class="card">
+        <h3>${r.title}</h3>
+        <p class="company">${r.company}</p>
+        <p>📍 ${r.location}</p>
+        <span class="score">${r.score}% Match</span>
+
+        <button onclick="applyInternship(this)">Apply</button>
+      </div>
+    `;
+
+        // top 3 sidebar
+        if (index < 3) {
+          topHtml += `<div class="miniCard">${r.title}</div>`;
+        }
+
+      });
+
+      grid.innerHTML = html;
+      topMatches.innerHTML = topHtml;
+    }
+
+    // apply
+    let applied = 0;
+
+    function applyInternship(btn) {
+      applied++;
+      document.getElementById("appliedCount").innerText = applied;
+
+      btn.innerText = "Applied";
+      btn.disabled = true;
+    }
+
+  </script>
+
+</body>
+
+</html>

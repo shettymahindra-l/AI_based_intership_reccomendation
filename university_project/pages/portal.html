@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Internship Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboardPage">
+
+  <nav class="navbar">
+    <div class="logo">Internship Dashboard</div>
+    <button class="logoutBtn" onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="container">
+
+    <!-- Mode Switch -->
+    <div class="modeSwitch">
+      <button onclick="switchMode('manual')" id="manualBtn" class="active">Manual</button>
+      <button onclick="switchMode('upload')" id="uploadBtn">Upload Resume</button>
+    </div>
+
+    <!-- Manual Form -->
+    <div id="manualForm" class="card formCard">
+
+      <h3>Find Relevant Internships</h3>
+
+      <select id="education">
+        <option value="">Select Education</option>
+
+        <!-- Engineering -->
+        <option>B.Tech</option>
+        <option>M.Tech</option>
+        <option>BCA</option>
+        <option>MCA</option>
+        <option>B.Sc</option>
+        <option>M.Sc</option>
+
+        <!-- Commerce / Management -->
+        <option>BBA</option>
+        <option>MBA</option>
+        <option>B.Com</option>
+        <option>M.Com</option>
+
+        <!-- Others -->
+        <option>Diploma</option>
+        <option>ITI</option>
+        <option>XII</option>
+        <option>X</option>
+      </select>
+
+      <input id="skills" placeholder="Skills (python, sql, java)">
+
+      <select id="domain">
+        <option>IT & Software</option>
+        <option>Data Analytics</option>
+        <option>Artificial Intelligence & ML</option>
+        <option>Banking & Financial Services</option>
+        <option>Consulting</option>
+        <option>Sales & Marketing</option>
+        <option>Human Resources</option>
+        <option>Electronics & Embedded Systems</option>
+        <option>Mechanical Engineering</option>
+        <option>Civil & Infrastructure</option>
+        <option>Automotive</option>
+        <option>Oil, Gas & Energy</option>
+        <option>Renewable Energy</option>
+        <option>FinTech</option>
+      </select>
+
+      <select id="location">
+        <option value="">Preferred Location</option>
+        <option>Bangalore</option>
+        <option>Hyderabad</option>
+        <option>Mumbai</option>
+      </select>
+
+      <select id="topk">
+        <option value="3">Top 3</option>
+        <option value="5">Top 5</option>
+      </select>
+
+      <button onclick="getRecommendations()">Search</button>
+
+    </div>
+
+    <!-- Upload Form -->
+    <div id="uploadForm" class="card formCard hidden">
+
+      <h3>Upload Resume</h3>
+
+      <input type="file" id="resume" accept=".pdf,.doc,.docx">
+
+      <button onclick="uploadResume()">Upload Resume</button>
+
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading hidden">🔍 Searching...</div>
+
+    <!-- Results -->
+    <div id="results" class="results"></div>
+
+  </div>
+
+  <script>
+
+    function logout() {
+      window.location.href = "index.html";
+    }
+
+    // 🔹 SWITCH MODE
+    function switchMode(mode) {
+
+      const manual = document.getElementById("manualForm");
+      const upload = document.getElementById("uploadForm");
+
+      const manualBtn = document.getElementById("manualBtn");
+      const uploadBtn = document.getElementById("uploadBtn");
+
+      if (mode === "manual") {
+        manual.classList.remove("hidden");
+        upload.classList.add("hidden");
+        manualBtn.classList.add("active");
+        uploadBtn.classList.remove("active");
+      } else {
+        manual.classList.add("hidden");
+        upload.classList.remove("hidden");
+        uploadBtn.classList.add("active");
+        manualBtn.classList.remove("active");
+      }
+    }
+
+    // 🔹 MANUAL SEARCH
+    async function getRecommendations() {
+
+      const loading = document.getElementById("loading");
+      const resultsDiv = document.getElementById("results");
+
+      // ✅ GET VALUES FIRST
+      const education = document.getElementById("education").value;
+      const skillsInput = document.getElementById("skills").value;
+      const domain = document.getElementById("domain").value;
+      const location = document.getElementById("location").value;
+      const topk = parseInt(document.getElementById("topk").value);
+
+      // ✅ FORM VALIDATION
+      if (!education) {
+        alert("Please select education");
+        return;
+      }
+
+      if (!skillsInput.trim()) {
+        alert("Please enter skills");
+        return;
+      }
+
+      if (!location) {
+        alert("Please select location");
+        return;
+      }
+
+      // ✅ AFTER VALIDATION → show loading
+      loading.classList.remove("hidden");
+      resultsDiv.innerHTML = "";
+
+      // ✅ CREATE PAYLOAD
+      const payload = {
+        education: education,
+        skills: skillsInput
+          .split(",")
+          .map(s => s.trim().toLowerCase())
+          .filter(s => s !== ""),
+        domain: domain,
+        location: location,
+        topk: topk
+      };
+
+      try {
+        const res = await fetch("/recommend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        loading.classList.add("hidden");
+
+        displayResults(data);
+
+      } catch (error) {
+        loading.classList.add("hidden");
+        resultsDiv.innerHTML = "<p>⚠️ Error connecting to server</p>";
+        console.error(error);
+      }
+    }
+
+    // 🔹 UPLOAD RESUME
+    async function uploadResume() {
+
+      const fileInput = document.getElementById("resume");
+      const file = fileInput.files[0];
+      const allowed = ["pdf", "doc", "docx"];
+      const ext = file.name.split(".").pop().toLowerCase();
+
+      if (!allowed.includes(ext)) {
+        alert("Only PDF/DOC/DOCX allowed");
+        return;
+      }
+
+      if (!file) {
+        alert("Please upload a resume");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const loading = document.getElementById("loading");
+      const resultsDiv = document.getElementById("results");
+
+      loading.classList.remove("hidden");
+      resultsDiv.innerHTML = "";
+
+      try {
+        const res = await fetch("/upload-resume", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.status === "no_match" || data.status === "low_match") {
+          showNoMatchUI();
+          return;
+        }
+
+        displayResults(data.results);
+
+        loading.classList.add("hidden");
+
+        console.log("Extracted:", data.skills, data.education);
+
+        if (data.error) {
+          resultsDiv.innerHTML = `<p>⚠️ ${data.error}</p>`;
+          return;
+        }
+
+        displayResults(data.results);
+
+      } catch (err) {
+        loading.classList.add("hidden");
+        alert("Upload failed");
+        console.error(err);
+      }
+    }
+
+    // 🔹 DISPLAY RESULTS
+    function displayResults(data) {
+
+      const resultsDiv = document.getElementById("results");
+
+      if (!data || data.length === 0) {
+        resultsDiv.innerHTML = "<p>No matching internships found 😢</p>";
+        return;
+      }
+
+      let html = "";
+
+      data.forEach((r, index) => {
+
+        let skillTags = "";
+        if (r.skills) {
+          r.skills.forEach(skill => {
+            skillTags += `<span class="skillTag">${skill}</span>`;
+          });
+        }
+
+        html += `
+        <div class="card resultCard">
+
+          <div class="resultHeader">
+            <h3>${r.title}</h3>
+            <span class="score">${r.score}% Match</span>
+          </div>
+
+          <p><b>${r.company}</b></p>
+          <p>📍 ${r.location}</p>
+          <p>🎓 ${r.qualification || "Not specified"}</p>
+
+          <div>${skillTags}</div>
+
+          <div class="description">
+            ${r.description || "No description"}
+          </div>
+
+        </div>
+        `;
+      });
+
+      resultsDiv.innerHTML = html;
+    }
+
+  </script>
+
+</body>
+
+</html>

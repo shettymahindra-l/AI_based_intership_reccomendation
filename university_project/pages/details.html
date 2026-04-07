@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Complete Profile</title>
+
+  <style>
+    /* ===== BODY ===== */
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      width: 400px;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* ===== INPUTS ===== */
+    select,
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    /* ===== BUTTON ===== */
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    /* ===== SKILLS ===== */
+    .skillsBox {
+      position: relative;
+    }
+
+    .selectedSkills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      background: #3b82f6;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .tag span {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
+    /* dropdown */
+    .dropdown {
+      position: absolute;
+      width: 100%;
+      background: white;
+      border: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+      border-radius: 6px;
+      z-index: 10;
+    }
+
+    .dropdown div {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .dropdown div:hover {
+      background: #f1f5f9;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <h2>Find Internships 🎯</h2>
+
+    <!-- EDUCATION -->
+    <select id="education">
+      <option value="">Select Education</option>
+      <option>B.Tech</option>
+      <option>M.Tech</option>
+      <option>BCA</option>
+      <option>MCA</option>
+      <option>BBA</option>
+      <option>B.Com</option>
+    </select>
+
+    <!-- DOMAIN -->
+    <select id="domain">
+      <option value="">Select Domain</option>
+      <option>IT & Software</option>
+      <option>Data Analytics</option>
+      <option>Banking & Financial Services</option>
+      <option>Electronics & Embedded Systems</option>
+      <option>Mechanical Engineering</option>
+      <option>Civil & Infrastructure</option>
+    </select>
+
+    <!-- SKILLS -->
+    <div class="skillsBox">
+
+      <div id="selectedSkills" class="selectedSkills"></div>
+
+      <input id="skillsInput" placeholder="Search & add skills" onkeyup="filterSkills()" onclick="showSkills()">
+
+      <div id="skillsList" class="dropdown hidden"></div>
+
+    </div>
+
+    <!-- LOCATION -->
+    <select id="location">
+      <option value="">Preferred Location</option>
+      <option>Bangalore</option>
+      <option>Hyderabad</option>
+      <option>Mumbai</option>
+      <option>Chennai</option>
+      <option>Delhi</option>
+    </select>
+
+    <!-- TOP K -->
+    <select id="topk">
+      <option value="3">Top 3</option>
+      <option value="5">Top 5</option>
+    </select>
+
+    <button onclick="submitDetails()">🔍 Find Internships</button>
+
+  </div>
+
+  <script>
+
+    //
+    // 🔥 SKILLS (from opportunity.json)
+    //
+    let allSkills = [];
+
+    // fetch from backend
+    fetch("http://127.0.0.1:5000/skills")
+      .then(res => res.json())
+      .then(data => {
+        allSkills = data;
+      })
+      .catch(err => console.error("Error loading skills:", err));
+
+    let selectedSkills = [];
+
+    function showSkills() {
+      renderSkills(allSkills);
+      document.getElementById("skillsList").classList.remove("hidden");
+    }
+
+    function filterSkills() {
+      const value = document.getElementById("skillsInput").value.toLowerCase();
+
+      const filtered = allSkills.filter(skill =>
+        skill.toLowerCase().includes(value)
+      );
+
+      renderSkills(filtered);
+    }
+
+    function renderSkills(list) {
+      const container = document.getElementById("skillsList");
+
+      let html = "";
+
+      list.forEach(skill => {
+        html += `<div onclick="addSkill('${skill}')">${skill}</div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+
+    function addSkill(skill) {
+      if (!selectedSkills.includes(skill)) {
+        selectedSkills.push(skill);
+      }
+
+      updateSkillUI();
+
+      document.getElementById("skillsInput").value = "";
+      document.getElementById("skillsList").classList.add("hidden");
+    }
+
+    function removeSkill(skill) {
+      selectedSkills = selectedSkills.filter(s => s !== skill);
+      updateSkillUI();
+    }
+
+    function updateSkillUI() {
+      const container = document.getElementById("selectedSkills");
+
+      let html = "";
+
+      selectedSkills.forEach(skill => {
+        html += `
+      <span class="tag">
+        ${skill}
+        <span onclick="removeSkill('${skill}')">❌</span>
+      </span>
+    `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    //
+    // 🚀 SUBMIT
+    //
+    function submitDetails() {
+
+      const education = document.getElementById("education").value;
+      const domain = document.getElementById("domain").value;
+      const location = document.getElementById("location").value;
+      const topk = parseInt(document.getElementById("topk").value);
+
+      if (!education || !domain || selectedSkills.length === 0 || !location) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      fetch("http://127.0.0.1:5000/recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          education: education,
+          domain: domain,
+          skills: selectedSkills,
+          location: location,
+          topk: topk
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+
+          console.log("Results:", data);
+
+          localStorage.setItem("results", JSON.stringify(data));
+          localStorage.setItem("domain", domain);
+          localStorage.setItem("skills", selectedSkills.join(", "));
+
+          window.location.href = "dashboard.html";
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Server error");
+        });
+    }
+
+  </script>
+
+</body>
+
+</html>
