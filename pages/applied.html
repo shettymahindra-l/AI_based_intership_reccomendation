@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Applied Internships</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboardPage">
+
+  <div class="sidebar">
+    <h2>🚀 Dashboard</h2>
+
+    <ul>
+      <li onclick="goHome()">Home</li>
+      <li class="active">Applied Internships</li>
+      <li>Profile</li>
+    </ul>
+  </div>
+
+  <div class="mainContent">
+
+    <div class="topHeader">
+      <h2>📌 Applied Internships</h2>
+      <button onclick="goHome()">Back</button>
+    </div>
+
+    <div id="appliedGrid" class="cardGrid"></div>
+
+  </div>
+
+  <script>
+    function goHome() {
+      window.location.href = "dashboard.html";
+    }
+    async function loadApplied() {
+
+      const res = await fetch("http://localhost:5000/applied");
+      const data = await res.json();
+
+      const grid = document.getElementById("appliedGrid");
+
+      if (data.length === 0) {
+        grid.innerHTML = "<p>No applied internships 😢</p>";
+        return;
+      }
+
+      let html = "";
+
+      data.forEach(item => {
+        html += `
+      <div class="card">
+        <h3>${item.title}</h3>
+        <p class="company">${item.company}</p>
+        <p>${item.location}</p>
+        <span class="score">✅ Applied</span>
+      </div>
+    `;
+      });
+
+      grid.innerHTML = html;
+    }
+
+    loadApplied();
+
+  </script>
+
+</body>
+
+</html>

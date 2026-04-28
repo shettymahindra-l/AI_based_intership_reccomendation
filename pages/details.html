@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Find Internships</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      width: 420px;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    select,
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    .divider {
+      text-align: center;
+      margin: 10px 0;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .skillsBox {
+      position: relative;
+    }
+
+    .selectedSkills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      background: #3b82f6;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .tag span {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      position: absolute;
+      width: 100%;
+      background: white;
+      border: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+      border-radius: 6px;
+      z-index: 10;
+    }
+
+    .dropdown div {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .dropdown div:hover {
+      background: #f1f5f9;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <h2>Find Internships 🎯</h2>
+
+    <!-- ================= RESUME UPLOAD ================= -->
+    <input type="file" id="resumeFile" accept=".pdf,.docx">
+    <button onclick="uploadResume()">📄 Upload Resume</button>
+
+    <div class="divider">OR</div>
+
+    <!-- ================= MANUAL INPUT ================= -->
+
+    <select id="education">
+      <option value="">Select Education</option>
+      <option>10th</option>
+      <option>12th</option>
+      <option>B.Tech</option>
+      <option>BCA</option>
+      <option>B.Sc</option>
+      <option>BBA</option>
+      <option>B.Com</option>
+    </select>
+
+    <select id="domain">
+      <option value="">Select Domain</option>
+      <option>IT & Software</option>
+      <option>Analytics</option>
+      <option>Data Analytics</option>
+      <option>Banking & Financial Services</option>
+      <option>Electronics & Embedded Systems</option>
+      <option>Mechanical Engineering</option>
+      <option>Civil & Infrastructure</option>
+      <option>Automotive</option>
+      <option>Oil, Gas & Energy</option>
+      <option>Renewable Energy</option>
+      <option>FinTech</option>
+      <option>Consulting</option>
+      <option>Sales & Marketing</option>
+      <option>Human Resources</option>
+      <option>Artificial Intelligence & ML</option>
+    </select>
+
+    <!-- SKILLS -->
+    <div class="skillsBox">
+      <div id="selectedSkills" class="selectedSkills"></div>
+
+      <input id="skillsInput" placeholder="Search & add skills" onkeyup="filterSkills()" onclick="showSkills()">
+
+      <div id="skillsList" class="dropdown hidden"></div>
+    </div>
+
+    <select id="location">
+      <option value="">Preferred Location(Optional)</option>
+      <option>Bangalore</option>
+      <option>Hyderabad</option>
+      <option>Mumbai</option>
+      <option>Chennai</option>
+      <option>Delhi</option>
+    </select>
+
+    <select id="topk">
+      <option value="3">Top 3</option>
+      <option value="5">Top 5</option>
+    </select>
+
+    <button onclick="submitDetails()">🔍 Find Internships</button>
+
+  </div>
+
+  <script>
+    // ================= SKILLS =================
+    let allSkills = [];
+    let selectedSkills = [];
+
+    // 🔥 Load skills dynamically from backend
+    async function loadSkills() {
+      try {
+        const res = await fetch("http://127.0.0.1:5000/skills");
+        allSkills = await res.json();
+
+        // sort alphabetically
+        allSkills.sort();
+
+      } catch (err) {
+        console.error("Error loading skills:", err);
+        alert("Failed to load skills");
+      }
+    }
+
+    // Call on page load
+    loadSkills();
+
+    function showSkills() {
+      renderSkills(allSkills);
+      document.getElementById("skillsList").classList.remove("hidden");
+    }
+
+    function filterSkills() {
+      const value = document.getElementById("skillsInput").value.toLowerCase();
+
+      const filtered = allSkills.filter(skill =>
+        skill.toLowerCase().includes(value)
+      );
+
+      renderSkills(filtered);
+    }
+
+    function renderSkills(list) {
+      const container = document.getElementById("skillsList");
+
+      if (list.length === 0) {
+        container.innerHTML = "<div>No skills found</div>";
+        return;
+      }
+
+      container.innerHTML = list.map(skill =>
+        `<div onclick="addSkill('${skill}')">${skill}</div>`
+      ).join("");
+    }
+
+    function addSkill(skill) {
+      if (!selectedSkills.includes(skill)) {
+        selectedSkills.push(skill);
+      }
+
+      updateSkillUI();
+
+      document.getElementById("skillsInput").value = "";
+      document.getElementById("skillsList").classList.add("hidden");
+    }
+
+    function removeSkill(skill) {
+      selectedSkills = selectedSkills.filter(s => s !== skill);
+      updateSkillUI();
+    }
+
+    function updateSkillUI() {
+      const container = document.getElementById("selectedSkills");
+
+      container.innerHTML = selectedSkills.map(skill => `
+      <span class="tag">
+        ${skill}
+        <span onclick="removeSkill('${skill}')">❌</span>
+      </span>
+    `).join("");
+    }
+
+    // ================= RESUME UPLOAD =================
+    function uploadResume() {
+      const fileInput = document.getElementById("resumeFile");
+
+      if (!fileInput.files.length) {
+        alert("Please select a resume file");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("resume", fileInput.files[0]);
+
+      fetch("http://127.0.0.1:5000/upload-resume", {
+        method: "POST",
+        body: formData
+      })
+        .then(res => res.json())
+        .then(data => {
+
+          if (data.error) {
+            alert(data.error);
+            return;
+          }
+
+          localStorage.setItem("results", JSON.stringify(data.results));
+          localStorage.setItem("skills", data.skills.join(", "));
+          localStorage.setItem("education", data.education);
+
+          window.location.href = "dashboard.html";
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Error uploading resume");
+        });
+    }
+
+    // ================= MANUAL SUBMIT =================
+    function submitDetails() {
+
+      const education = document.getElementById("education").value;
+      const domain = document.getElementById("domain").value;
+      const location = document.getElementById("location").value;
+      const topk = parseInt(document.getElementById("topk").value);
+
+      if (selectedSkills.length === 0) {
+        alert("Please select at least one skill");
+        return;
+      }
+
+      fetch("http://127.0.0.1:5000/recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          education,
+          domain,
+          skills: selectedSkills,
+          location,
+          topk
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+
+          if (!data || data.length === 0) {
+            alert("No recommendations found. Try different skills.");
+            return;
+          }
+
+          localStorage.setItem("results", JSON.stringify(data));
+          window.location.href = "dashboard.html";
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Server error");
+        });
+    }
+  </script>
+
+</body>
+
+</html>

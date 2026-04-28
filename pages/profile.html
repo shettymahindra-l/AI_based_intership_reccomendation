@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboardPage">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>🚀 Dashboard</h2>
+
+    <ul>
+      <li onclick="goHome()">Home</li>
+      <li onclick="goApplied()">Applied Internships</li>
+      <li class="active">Profile</li>
+    </ul>
+  </div>
+
+  <!-- MAIN -->
+  <div class="mainContent">
+
+    <div class="topHeader">
+      <h2>👤 My Profile</h2>
+      <button onclick="goHome()">Back</button>
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div class="profileCard">
+
+      <h3 id="userName">Name</h3>
+      <p><b>Email:</b> <span id="userEmail"></span></p>
+      <p><b>Domain:</b> <span id="userDomain"></span></p>
+      <p><b>Skills:</b> <span id="userSkills"></span></p>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    function goHome() {
+      window.location.href = "dashboard.html";
+    }
+
+    function goApplied() {
+      window.location.href = "applied.html";
+    }
+
+    // load user data
+    document.getElementById("userName").innerText =
+      localStorage.getItem("name") || "Not set";
+
+    document.getElementById("userEmail").innerText =
+      localStorage.getItem("email") || "Not set";
+
+    document.getElementById("userDomain").innerText =
+      localStorage.getItem("domain") || "Not set";
+
+    document.getElementById("userSkills").innerText =
+      localStorage.getItem("skills") || "Not set";
+
+  </script>
+
+</body>
+
+</html>

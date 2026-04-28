@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Internship Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="loginPage">
+
+  <!-- NAVBAR (same as index) -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <img src="images/gov-logo.png" class="navLogo">
+      <div class="navText">
+        <span>PM Internship Portal</span>
+        <small>Government of India</small>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <button class="secondaryBtn" onclick="goHome()">Home</button>
+    </div>
+  </nav>
+
+  <!-- LOGIN SECTION -->
+  <section class="loginSection">
+
+    <div class="loginBox">
+
+      <h2>Welcome Back</h2>
+      <p class="loginSub">
+        Login to access your personalized internship recommendations
+      </p>
+
+      <input type="email" placeholder="Email Address">
+      <input type="password" placeholder="Password">
+
+      <button onclick="login()">Login</button>
+
+      <p class="registerText">
+        New user? <span onclick="goRegister()">Create an account</span>
+      </p>
+
+    </div>
+
+  </section>
+
+  <script>
+    function login() {
+
+      const email = document.querySelector('input[type="email"]').value;
+      const password = document.querySelector('input[type="password"]').value;
+
+      fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+
+          console.log("Response:", data);
+
+          if (data.success) {
+            // ✅ correct login
+            window.location.href = "details.html";
+            localStorage.setItem("name", data.name);   // VERY IMPORTANT
+            localStorage.setItem("email", data.email);
+          } else {
+            // ❌ wrong login
+            alert(data.message || "Invalid credentials");
+          }
+
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Server error");
+        });
+    }
+
+    function goHome() {
+      window.location.href = "index.html";
+    }
+
+    function goRegister() {
+      window.location.href = "register.html";
+    }
+  </script>
+
+</body>
+
+</html>

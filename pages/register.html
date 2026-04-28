@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      display: flex;
+      width: 900px;
+      height: 520px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    /* LEFT PANEL */
+    .left {
+      flex: 1;
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      color: white;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .left h1 {
+      font-size: 32px;
+      margin-bottom: 15px;
+    }
+
+    .left p {
+      font-size: 15px;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    /* RIGHT CARD */
+    .right {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 35px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .right h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .inputGroup {
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .inputGroup input {
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .inputGroup input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 5px rgba(59, 130, 246, 0.4);
+    }
+
+    .toggle-eye {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      cursor: pointer;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .message {
+      font-size: 13px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .link {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- LEFT -->
+    <div class="left">
+      <h1>Join Us 🚀</h1>
+      <p>
+        Build your future with personalized internship recommendations.
+        Discover opportunities that match your skills instantly.
+      </p>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+
+      <h2>Create Account</h2>
+
+      <div id="msg" class="message"></div>
+
+      <div class="inputGroup">
+        <input type="text" id="name" placeholder="Full Name">
+      </div>
+
+      <div class="inputGroup">
+        <input type="email" id="email" placeholder="Email">
+      </div>
+
+      <div class="inputGroup">
+        <input type="password" id="password" placeholder="Password">
+        <span class="toggle-eye" onclick="toggle('password')">👁️</span>
+      </div>
+
+      <div class="inputGroup">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+        <span class="toggle-eye" onclick="toggle('confirmPassword')">👁️</span>
+      </div>
+
+      <button onclick="register()">Register</button>
+
+      <div class="link">
+        Already have account? <a href="login.html">Login</a>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    function toggle(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function showMsg(text, type = "error") {
+      const msg = document.getElementById("msg");
+      msg.className = "message " + type;
+      msg.innerText = text;
+    }
+
+    async function register() {
+
+      const name = name.value.trim();
+      const email = email.value.trim();
+      const password = password.value;
+      const confirmPassword = confirmPassword.value;
+
+      if (!name || !email || !password || !confirmPassword) {
+        showMsg("All fields required");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showMsg("Passwords do not match");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success === false) {
+          showMsg(data.message);
+        } else {
+          showMsg("Registered successfully 🎉", "success");
+          setTimeout(() => window.location.href = "login.html", 1000);
+        }
+
+      } catch {
+        showMsg("Server error");
+      }
+    }
+
+  </script>
+
+</body>
+
+</html>
